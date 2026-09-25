@@ -6,7 +6,7 @@ import {
   Layers,
   Sprout,
   CheckCircle2,
-  Sprout as SeedlingIcon,
+  Leaf as SeedlingIcon,
   TrendingUp,
   Award,
   type LucideIcon,

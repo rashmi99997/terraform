@@ -19,14 +19,14 @@ import type {
 // --- Location mock data ---
 
 export const MOCK_LOCATIONS: LocationInfo[] = [
-  {
-    label: 'Punjab Agricultural Region',
-    region: 'Punjab',
-    country: 'India',
-    latitude: 31.1471,
-    longitude: 75.3412,
-    climateZone: 'Semi-arid subtropical',
-  },
+ {
+label: 'Bangalore Agricultural Region',
+region: 'Karnataka',
+country: 'India',
+latitude: 12.9716,
+longitude: 77.5946,
+climateZone: 'Tropical Savanna',
+},
   {
     label: 'Central Valley',
     region: 'California',
