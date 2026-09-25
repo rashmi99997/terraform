@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* TERRAFORM Design System */
+    --background: 42 33% 97%; /* Warm Off-White */
+    --foreground: 150 20% 12%; /* Deep Forest Ink */
+    --card: 0 0% 100%;
+    --card-foreground: 150 20% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 20% 12%;
+
+    /* Primary: Deep Forest Green */
+    --primary: 152 38% 22%;
+    --primary-foreground: 42 33% 97%;
+
+    /* Secondary: Earth Brown */
+    --secondary: 25 32% 32%;
+    --secondary-foreground: 42 33% 97%;
+
+    /* Accent: Wheat Gold */
+    --accent: 38 62% 52%;
+    --accent-foreground: 150 20% 12%;
+
+    --muted: 42 20% 92%;
+    --muted-foreground: 150 10% 40%;
+
+    --destructive: 0 72% 46%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 42 18% 88%;
+    --input: 42 18% 86%;
+    --ring: 152 38% 22%;
+
+    /* Additional ramps */
+    --forest-light: 142 28% 38%;
+    --forest-dark: 155 42% 16%;
+    --earth-light: 28 30% 52%;
+    --earth-dark: 22 35% 22%;
+    --wheat-light: 44 72% 64%;
+    --wheat-dark: 34 58% 42%;
+    --success: 142 52% 38%;
+    --warning: 38 82% 52%;
+    --error: 0 72% 46%;
+
+    --chart-1: 152 38% 22%;
+    --chart-2: 38 62% 52%;
+    --chart-3: 25 32% 32%;
+    --chart-4: 142 28% 48%;
+    --chart-5: 44 72% 64%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 155 30% 8%;
+    --foreground: 42 33% 95%;
+    --card: 155 28% 11%;
+    --card-foreground: 42 33% 95%;
+    --popover: 155 28% 11%;
+    --popover-foreground: 42 33% 95%;
+    --primary: 142 28% 45%;
+    --primary-foreground: 155 30% 8%;
+    --secondary: 25 25% 35%;
+    --secondary-foreground: 42 33% 95%;
+    --accent: 44 62% 55%;
+    --accent-foreground: 155 30% 8%;
+    --muted: 155 20% 16%;
+    --muted-foreground: 42 15% 60%;
+    --destructive: 0 60% 42%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 155 18% 20%;
+    --input: 155 18% 18%;
+    --ring: 142 28% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .bg-grid-pattern {
+    background-image: linear-gradient(
+        to right,
+        hsl(var(--border) / 0.4) 1px,
+        transparent 1px
+      ),
+      linear-gradient(to bottom, hsl(var(--border) / 0.4) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .shadow-soft {
+    box-shadow: 0 2px 8px -2px hsl(150 20% 12% / 0.08),
+      0 4px 16px -4px hsl(150 20% 12% / 0.06);
+  }
+  .shadow-soft-lg {
+    box-shadow: 0 8px 32px -8px hsl(150 20% 12% / 0.12),
+      0 16px 48px -12px hsl(150 20% 12% / 0.08);
+  }
+  .shadow-glow {
+    box-shadow: 0 0 0 1px hsl(var(--accent) / 0.2),
+      0 8px 32px -8px hsl(var(--accent) / 0.3);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 9999px;
+  border: 2px solid hsl(var(--muted));
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
