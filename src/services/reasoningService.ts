@@ -1,16 +1,20 @@
-// src/services/reasoningService.ts
-
-import { SOIL_KNOWLEDGE } from '@/src/knowledge-base/soil-types';
-import { CROP_DATABASE } from '@/src/knowledge-base/crop-database';
+import { CROP_DATABASE } from '@/src/knowledge-base';
 
 export function getCropRecommendations(soilType: string) {
-  const recommendations = [];
+  return Object.values(CROP_DATABASE).map((crop) => ({
+    ...crop,
+    score: crop.suitableSoils.includes(soilType) ? 100 : 0,
+  }))
+  .filter((crop) => crop.score > 0)
+  .sort((a, b) => b.score - a.score);
+}
 
-  for (const crop of Object.values(CROP_DATABASE)) {
-    if (crop.suitableSoils.includes(soilType)) {
-      recommendations.push(crop);
-    }
+export function getBestCrop(soilType: string) {
+  const recommendations = getCropRecommendations(soilType);
+
+  if (recommendations.length === 0) {
+    return null;
   }
 
-  return recommendations;
+  return recommendations[0];
 }
