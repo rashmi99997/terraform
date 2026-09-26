@@ -9,12 +9,10 @@ import {
   Droplets,
   Thermometer,
   Clock,
-  ArrowRight,
 } from 'lucide-react';
 import type { CropRecommendation } from '@/src/types';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import Link from 'next/link';
 
 interface RecommendationCardProps {
   crop: CropRecommendation;
