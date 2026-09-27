@@ -1,13 +1,11 @@
 // ============================================================================
-// TERRAFORM — Placeholder Services
-// These services return mock data and are structured so real backend
-// API calls can replace them without changing the calling UI code.
+// TERRAFORM — Placeholder & Integration Services
+// Connects UI calls to reasoning logic and mock databases.
 // ============================================================================
-
+import { getCropRecommendations } from './reasoningService';
 import {
   MOCK_ANALYSIS,
   MOCK_LOCATIONS,
-  MOCK_RECOMMENDATIONS,
   MOCK_WEATHER,
 } from '@/src/data/mock-data';
 import type {
@@ -89,21 +87,24 @@ export const diagnosisService = {
 // --- Recommendation Service ---
 
 export const recommendationService = {
-  /** PLACEHOLDER: Returns mock crop recommendations. Replace with reasoning AI backend. */
   async getRecommendations(
     location: LocationInfo | null,
-    soilType: SoilType | null,
+    soilType: string | null,
     conditions: string[]
   ): Promise<CropRecommendation[]> {
-    console.log('[PLACEHOLDER] recommendationService.getRecommendations', {
+    console.log('[recommendationService] Fetching recommendations for:', {
       location: location?.label,
       soilType,
       conditions,
     });
-    return simulateDelay(MOCK_RECOMMENDATIONS, 1200);
+
+    if (!soilType) {
+      return [];
+    }
+
+    return getCropRecommendations(soilType);
   },
 };
-
 // --- Weather Service ---
 
 export const weatherService = {

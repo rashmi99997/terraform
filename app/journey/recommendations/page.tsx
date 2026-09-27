@@ -1,10 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Sprout, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Sprout, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/src/components/common/PageHeader';
 import { JourneyNav } from '@/src/components/navigation/JourneyNav';
 import { RecommendationCard } from '@/src/components/cards/RecommendationCard';
@@ -20,13 +18,21 @@ export default function RecommendationsPage() {
   >([]);
   const [loading, setLoading] = useState(true);
 
+  const soilType =
+    typeof state.soil === 'string'
+      ? state.soil
+      : state.soil?.type ?? null;
+
   useEffect(() => {
     let active = true;
     setLoading(true);
+
+    console.log('[RecommendationsPage] Resolved soilType from store:', soilType);
+
     recommendationService
       .getRecommendations(
         state.location,
-        state.soil?.type ?? null,
+        soilType,
         state.conditions
       )
       .then((result) => {
@@ -38,7 +44,7 @@ export default function RecommendationsPage() {
     return () => {
       active = false;
     };
-  }, [state.location, state.soil?.type, state.conditions]);
+  }, [state.location, soilType, state.conditions]);
 
   const hasSelection = !!state.selectedCrop;
 
@@ -54,15 +60,6 @@ export default function RecommendationsPage() {
         }
         icon={<Sprout className="h-7 w-7" />}
       />
-
-      {/* Mock disclaimer */}
-      <div className="flex items-start gap-2.5 rounded-xl border border-accent/30 bg-accent/10 p-4">
-        <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-accent-dark" />
-        <p className="text-sm text-accent-dark/80">
-          These recommendations use mock data. Real AI-powered crop matching
-          will replace this in a future update.
-        </p>
-      </div>
 
       {loading && (
         <LoadingState

@@ -18,6 +18,8 @@ const ICON_MAP: Record<string, typeof Map> = {
   layers: Layers,
   'cloud-sun': CloudSun,
   'alert-triangle': AlertTriangle,
+  Sprout: Map,
+  AlertTriangle: AlertTriangle,
 };
 
 const SEVERITY_STYLES = {
@@ -48,8 +50,17 @@ interface AnalysisCardProps {
 
 export function AnalysisCard({ section, index = 0 }: AnalysisCardProps) {
   const Icon = ICON_MAP[section.icon] ?? Map;
-  const SeverityIcon = SEVERITY_STYLES[section.severity].icon;
-  const severity = SEVERITY_STYLES[section.severity];
+
+  const getStyleKey = (sev: string) => {
+    const s = String(sev || '').toLowerCase();
+    if (['good', 'optimal', 'low', 'healthy'].includes(s)) return 'good';
+    if (['concern', 'critical', 'high', 'warning'].includes(s)) return 'concern';
+    return 'moderate';
+  };
+
+  const styleKey = getStyleKey(section.severity);
+  const severity = SEVERITY_STYLES[styleKey];
+  const SeverityIcon = severity.icon;
 
   return (
     <motion.div
@@ -85,7 +96,7 @@ export function AnalysisCard({ section, index = 0 }: AnalysisCardProps) {
           <p className="mt-2 text-sm text-muted-foreground">{section.summary}</p>
 
           <ul className="mt-4 space-y-2">
-            {section.details.map((detail, i) => (
+            {(section.details || []).map((detail, i) => (
               <li
                 key={i}
                 className="flex items-start gap-2 text-sm text-foreground/80"

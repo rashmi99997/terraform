@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { ScanLine, AlertCircle } from 'lucide-react';
+import { ScanLine, Sparkles, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PageHeader } from '@/src/components/common/PageHeader';
 import { JourneyNav } from '@/src/components/navigation/JourneyNav';
@@ -11,33 +11,90 @@ import {
 } from '@/src/components/cards/AnalysisCard';
 import { LoadingState } from '@/src/components/common/LoadingState';
 import { useJourney } from '@/src/store/journey-store';
-import { diagnosisService } from '@/src/services';
-import type { LandAnalysis } from '@/src/types';
+
+interface GeminiAnalysis {
+  overallScore: number;
+  sections: Array<{
+    id: string;
+    title: string;
+    status: 'good' | 'warning' | 'critical';
+    summary: string;
+    findings: string[];
+  }>;
+  summaryReport: string;
+}
 
 export default function AnalysisPage() {
   const { state } = useJourney();
-  const [analysis, setAnalysis] = useState<LandAnalysis | null>(null);
+  const [analysis, setAnalysis] = useState<GeminiAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
     setLoading(true);
-    diagnosisService
-      .diagnoseLand(
-        state.location,
-        state.soil?.type ?? null,
-        state.conditions
-      )
-      .then((result) => {
+    setError(null);
+
+    async function fetchGeminiAnalysis() {
+      try {
+        // 1. Get soil type safely
+        const soilTypeParam =
+          typeof state.soil === 'string'
+            ? state.soil
+            : state.soil?.type ?? 'Sandy Soil';
+
+        // 2. Get reported conditions safely as readable text
+        const conditionsParam = Array.isArray(state.conditions)
+          ? state.conditions.join(', ')
+          : state.conditions || 'None reported';
+
+        // 3. Get location safely
+        const locationParam =
+          typeof state.location === 'string'
+            ? state.location
+            : state.location?.region || 'Unspecified';
+
+        const res = await fetch('/api/generate-report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            soilType: soilTypeParam,
+            reportedConditions: conditionsParam,
+            location: locationParam,
+          }),
+        });
+
+        if (!res.ok) {
+          throw new Error(`Server status: ${res.status}`);
+        }
+
+        const data = await res.json();
+
         if (active) {
-          setAnalysis(result);
+          if (data && typeof data.overallScore === 'number') {
+            setAnalysis(data);
+          } else {
+            throw new Error('Invalid JSON structure returned');
+          }
+        }
+      } catch (err: any) {
+        console.error('Error fetching Gemini AI report:', err);
+        if (active) {
+          setError(err.message || 'Failed to load report');
+        }
+      } finally {
+        if (active) {
           setLoading(false);
         }
-      });
+      }
+    }
+
+    fetchGeminiAnalysis();
+
     return () => {
       active = false;
     };
-  }, [state.location, state.soil?.type, state.conditions]);
+  }, [state.location, state.soil, state.conditions]);
 
   return (
     <div className="space-y-10">
@@ -50,9 +107,19 @@ export default function AnalysisPage() {
 
       {loading && (
         <LoadingState
-          label="Analyzing your land..."
-          sublabel="Reviewing location, soil, and conditions to generate your diagnosis"
+          label="Generating AI Land Report..."
+          sublabel="Analyzing location, soil parameters, and environmental conditions with Gemini AI"
         />
+      )}
+
+      {error && !loading && (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700 flex items-center gap-3">
+          <AlertTriangle className="h-5 w-5 shrink-0" />
+          <div>
+            <p className="font-semibold">Unable to load AI Analysis</p>
+            <p className="text-sm">{error}. Please check your browser console or terminal logs.</p>
+          </div>
+        </div>
       )}
 
       {!loading && analysis && (
@@ -62,29 +129,41 @@ export default function AnalysisPage() {
           transition={{ duration: 0.4 }}
           className="space-y-6"
         >
-          {/* Mock data disclaimer */}
-          <div className="flex items-start gap-2.5 rounded-xl border border-accent/30 bg-accent/10 p-4">
-            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-accent-dark" />
+          {/* Live AI Status Badge */}
+          <div className="flex items-start gap-2.5 rounded-xl border border-primary/30 bg-primary/10 p-4">
+            <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
             <div>
-              <p className="text-sm font-semibold text-accent-dark">
-                Placeholder Analysis
+              <p className="text-sm font-semibold text-primary">
+                Gemini AI Reasoning Active
               </p>
-              <p className="mt-0.5 text-sm text-accent-dark/80">
-                This analysis uses mock data to demonstrate the experience. Real
-                AI-powered analysis will replace this in a future update.
+              <p className="mt-0.5 text-sm text-primary/80">
+                Land health scores and diagnostic cards are computed live by Gemini based on your specific parameters.
               </p>
             </div>
           </div>
 
-          {/* Overall score */}
+          {/* Dynamic Overall Score */}
           <OverallScoreCard score={analysis.overallScore} />
 
-          {/* Analysis sections */}
+          {/* AI Summary Card */}
+          {analysis.summaryReport && (
+            <div className="rounded-2xl border bg-card p-6 shadow-sm space-y-2">
+              <h3 className="text-md font-bold flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                Agronomist Summary
+              </h3>
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {analysis.summaryReport}
+              </p>
+            </div>
+          )}
+
+          {/* Dynamic Analysis Sections */}
           <div className="space-y-4">
             {analysis.sections.map((section, index) => (
               <AnalysisCard
-                key={section.id}
-                section={section}
+                key={section.id || index}
+                section={section as any}
                 index={index}
               />
             ))}
